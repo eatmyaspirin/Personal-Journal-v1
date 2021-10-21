@@ -8,11 +8,6 @@ const passport = require("passport");
 const passportLocalMongoose = require("passport-local-mongoose");
 const LocalStrategy = require('passport-local').Strategy;
 
-
-
-
-const homeStartingContent = "Lacus vel facilisis volutpat est velit egestas dui id ornare. Semper auctor neque vitae tempus quam. Sit amet cursus sit amet dictum sit amet justo. Viverra tellus in hac habitasse. Imperdiet proin fermentum leo vel orci porta. Donec ultrices tincidunt arcu non sodales neque sodales ut. Mattis molestie a iaculis at erat pellentesque adipiscing. Magnis dis parturient montes nascetur ridiculus mus mauris vitae ultricies. Adipiscing elit ut aliquam purus sit amet luctus venenatis lectus. Ultrices vitae auctor eu augue ut lectus arcu bibendum at. Odio euismod lacinia at quis risus sed vulputate odio ut. Cursus mattis molestie a iaculis at erat pellentesque adipiscing.";
-
 const app = express();
 app.locals._ = _;
 
@@ -60,7 +55,6 @@ passport.deserializeUser(function(user, done) {
 
 const postSchema = new mongoose.Schema({
     username: String,
-    name: String,
     title: String,
     content: String
 });
@@ -71,9 +65,9 @@ app.get("/", function(req, res) {
 
     if (req.isAuthenticated()) {
         Post.find({username: req.user.username}, function(err, posts) {
+            //console.log(posts);
             res.render("home", {
-                startingContent: homeStartingContent,
-                posts: posts
+                posts: posts,
             });
         });
     } else {
@@ -99,7 +93,6 @@ app.get("/compose", function(req, res) {
 app.post("/compose", function(req, res) {
 
     const post = new Post({
-        name: _.lowerCase(req.body.postTitle),
         title: req.body.postTitle,
         username: req.user.username,
         content: req.body.postBody
@@ -112,19 +105,22 @@ app.post("/compose", function(req, res) {
 });
 
 app.get("/posts/:postName", function(req, res) {
-    const requestedTitle = _.lowerCase(req.params.postName);
-    console.log(requestedTitle);
-
-    Post.findOne({ name: requestedTitle }, function(err, post) {
+    const requestedTitle = req.params.postName;
+    //console.log(requestedTitle);
+    Post.findOne({ _id: requestedTitle }, function(err, post) {
         //console.log(post);
-        res.render("post", {
-            title: post.title,
-            content: post.content
-        });
 
-    });
+        if (req.isAuthenticated() && req.user.username == post.username) {
+            res.render("post", {
+                title: post.title,
+                content: post.content
+            });
+        } else {
+            res.redirect("/login");
+        }
 
 
+});
 });
 
 app.get("/login", function(req, res) {
@@ -135,7 +131,7 @@ app.post('/login',
     passport.authenticate('local', { failureRedirect: '/login' }),
     function(req, res) {
         res.redirect('/');
-        console.log("logged in YAY!");
+        //console.log("logged in!");
     });
 
 app.get("/register", function(req, res) {
