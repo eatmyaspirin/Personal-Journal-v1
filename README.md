@@ -17,7 +17,7 @@ Or
 
 1. Clone this repository `git clone https://github.com/Jade9ja/Personal-Journal-v1.git`
 
-1. Enter folder: `cd Personal-Journal-v1`
+1. Switch to the folder: `cd Personal-Journal-v1`
 
 1. Install dependencies: `npm install`
 
