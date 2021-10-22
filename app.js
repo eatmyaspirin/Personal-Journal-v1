@@ -24,7 +24,7 @@ app.use(session({
 app.use(passport.initialize());
 app.use(passport.session());
 
-mongoose.connect(process.env.DATABASE_URL, { useNewUrlParser: true });
+mongoose.connect(process.env.DATABASE_URL || "mongodb://localhost:27017/", { useNewUrlParser: true });
 
 const userSchema = new mongoose.Schema({
     username: String,
